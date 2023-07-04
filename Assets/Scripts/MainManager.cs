@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class MainManager : MonoBehaviour
 {
@@ -18,10 +19,16 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
+    private string playerName;
+    private int currentHighScore;
+
+    public Text highScoreText;
     
     // Start is called before the first frame update
     void Start()
     {
+        playerName = PersistanceManager.Instance.playerName;
+        currentHighScore = PersistanceManager.Instance.highScore;
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -36,6 +43,7 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+        ShowCurrentScore();
     }
 
     private void Update()
@@ -59,6 +67,10 @@ public class MainManager : MonoBehaviour
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SceneManager.LoadScene(0);
+            }
         }
     }
 
@@ -72,5 +84,21 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        CheckScore();
+    }
+
+    private void CheckScore()
+    {
+        if (m_Points > currentHighScore)
+        {
+            PersistanceManager.Instance.highScore = m_Points;
+            PersistanceManager.Instance.highScoreHolder = playerName;
+            highScoreText.text = "Best Score: " + PersistanceManager.Instance.highScoreHolder + " : " + PersistanceManager.Instance.highScore;
+        }
+    }
+
+    private void ShowCurrentScore()
+    {
+        highScoreText.text = "Best Score: " + PersistanceManager.Instance.highScoreHolder + " : " + PersistanceManager.Instance.highScore;
     }
 }
